@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Script Prompt Generator</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --border: #334155;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #818cf8;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #0f172a;
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .result-section {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        #promptOutput {
+            background-color: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            white-scale: pre-wrap;
+            word-break: break-word;
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        .copy-btn {
+            background-color: var(--success);
+            margin-top: 10px;
+        }
+
+        .copy-btn:hover {
+            background-color: #16a34a;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Roblox Script Prompt Generator</h1>
+        
+        <div class="form-group">
+            <label for="ideaInput">Bạn muốn script làm gì? (Mô tả tính năng):</label>
+            <textarea id="ideaInput" placeholder="Ví dụ: Tạo một GUI auto farm, có bật/tắt, dịch chuyển đến mục tiêu..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="environmentSelect">Môi trường chạy Script:</label>
+            <select id="environmentSelect">
+                <option value="Executor">Executor (Dùng bên ngoài như Synapse Z, Solara, Wave, v.v.)</option>
+                <option value="Roblox Studio">Roblox Studio (Script lưu trực tiếp trong game)</option>
+            </select>
+        </div>
+
+        <button onclick="generatePrompt()">Tạo Prompt cho AI</button>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <label>Prompt hoàn chỉnh (Copy và dán vào AI):</label>
+            </div>
+            <div id="promptOutput"></div>
+            <button class="copy-btn" onclick="copyPrompt()">Sao chép Prompt</button>
+        </div>
+    </div>
+
+    <script>
+        function generatePrompt() {
+            const idea = document.getElementById('ideaInput').value.trim();
+            const environment = document.getElementById('environmentSelect').value;
+            const outputDiv = document.getElementById('promptOutput');
+            const resultSection = document.getElementById('resultSection');
+
+            if (!idea) {
+                alert('Vui lòng nhập mô tả script bạn muốn làm!');
+                return;
+            }
+
+            let environmentContext = "";
+            if (environment === "Executor") {
+                environmentContext = "Script này sẽ được chạy thông qua một Roblox Executor (môi trường exploit bên ngoài client). Hãy đảm bảo code tối ưu, dùng các hàm an toàn, viết bằng LuaU và có giao diện GUI đẹp mắt nếu cần.";
+            } else {
+                environmentContext = "Script này sẽ được đưa vào Roblox Studio (môi trường phát triển game chính thức). Hãy viết bằng LuaU, sử dụng đúng cấu trúc dịch vụ của Roblox (như ServerScriptService, StarterPlayerScripts) và viết code sạch sẽ, dễ bảo trì.";
+            }
+
+            const finalPrompt = `Hãy viết một đoạn mã LuaU hoàn chỉnh cho Roblox dựa trên yêu cầu sau:
+
+- Mục đích/Tính năng: ${idea}
+- Môi trường hoạt động: ${environment} (${environmentContext})
+
+Yêu cầu kỹ thuật:
+1. Viết code chuẩn LuaU của Roblox, tối ưu hiệu năng và không bị lỗi (error).
+2. Nếu có tạo giao diện người dùng (GUI), hãy thiết kế hiện đại, dễ nhìn và có tính năng thu gọn/bật tắt.
+3. Giải thích ngắn gọn cách sử dụng hoặc cách gắn script vào game sao cho đúng cách.
+4. Chỉ trả về code và hướng dẫn cần thiết, không dài dòng.`;
+
+            outputDiv.textContent = finalPrompt;
+            resultSection.style.display = 'block';
+        }
+
+        function copyPrompt() {
+            const promptText = document.getElementById('promptOutput').textContent;
+            navigator.clipboard.writeText(promptText).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                copyBtn.textContent = 'Đã sao chép thành công!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Sao chép Prompt';
+                }, 2000);
+            }).catch(err => {
+                alert('Không thể sao chép tự động. Hãy bôi đen và copy thủ công nhé!');
+            });
+        }
+    </script>
+
+</body>
+</html>
